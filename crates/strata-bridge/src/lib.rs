@@ -233,4 +233,23 @@ mod tests {
         eprintln!("Query      -> {}", run(r#"{"VectorQuery":{"collection":"docs","query":[1.0,0.0,0.0,0.0],"k":3}}"#));
         eprintln!("Get        -> {}", run(r#"{"VectorGet":{"collection":"docs","key":"a"}}"#));
     }
+
+    /// Captures Graph wire shapes. Run: `cargo test graph_wire_shapes -- --nocapture`.
+    #[test]
+    fn graph_wire_shapes() {
+        let reg = Registry::new();
+        let h = reg.open_memory().unwrap();
+        let run = |c: &str| reg.execute(h, c).unwrap_or_else(|e| format!("ERR: {e}"));
+
+        eprintln!("Create   -> {}", run(r#"{"GraphCreate":{"graph":"social"}}"#));
+        eprintln!("AddNode  -> {}", run(r#"{"GraphAddNode":{"graph":"social","node_id":"alice","object_type":"Person","properties":{"Object":{"name":{"String":"Alice"}}}}}"#));
+        run(r#"{"GraphAddNode":{"graph":"social","node_id":"bob","object_type":"Person","properties":{"Object":{"name":{"String":"Bob"}}}}}"#);
+        run(r#"{"GraphAddNode":{"graph":"social","node_id":"acme","object_type":"Company","properties":{"Object":{"name":{"String":"Acme"}}}}}"#);
+        eprintln!("AddEdge  -> {}", run(r#"{"GraphAddEdge":{"graph":"social","src":"alice","dst":"bob","edge_type":"FOLLOWS"}}"#));
+        run(r#"{"GraphAddEdge":{"graph":"social","src":"alice","dst":"acme","edge_type":"WORKS_AT"}}"#);
+        eprintln!("List     -> {}", run(r#"{"GraphList":{}}"#));
+        eprintln!("ListNodes-> {}", run(r#"{"GraphListNodes":{"graph":"social"}}"#));
+        eprintln!("GetNode  -> {}", run(r#"{"GraphGetNode":{"graph":"social","node_id":"alice"}}"#));
+        eprintln!("Neighbors-> {}", run(r#"{"GraphNeighbors":{"graph":"social","node_id":"alice","direction":"both"}}"#));
+    }
 }

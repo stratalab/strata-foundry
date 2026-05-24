@@ -13,7 +13,7 @@ export const SECTIONS: Section[] = [
   { id: "event", label: "Events", ready: true },
   { id: "json", label: "JSON", ready: true },
   { id: "vector", label: "Vectors", ready: true },
-  { id: "graph", label: "Graph", ready: false },
+  { id: "graph", label: "Graph", ready: true },
   { id: "search", label: "Search", ready: false },
 ];
 

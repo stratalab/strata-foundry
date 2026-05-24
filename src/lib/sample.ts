@@ -6,6 +6,7 @@ import { spaceCreate } from "./space";
 import { eventAppend } from "./event";
 import { jsonSet } from "./json";
 import { vectorCreateCollection, vectorUpsert } from "./vector";
+import { graphCreate, graphAddNode, graphAddEdge } from "./graph";
 import type { Handle } from "./strata";
 
 /** Seed KV, events, JSON, and a second space on the default branch. */
@@ -78,6 +79,18 @@ export async function seedSample(handle: Handle): Promise<void> {
   await vectorUpsert(handle, "embeddings", "doc:beta", [0, 1, 0, 0], { Object: { title: { String: "Beta" } } });
   await vectorUpsert(handle, "embeddings", "doc:gamma", [0.9, 0.1, 0, 0], { Object: { title: { String: "Gamma" } } });
   await vectorUpsert(handle, "embeddings", "doc:delta", [0, 0, 1, 0], { Object: { title: { String: "Delta" } } });
+
+  // A small graph (people + a company) so the graph canvas isn't empty.
+  await graphCreate(handle, "org");
+  await graphAddNode(handle, "org", "alice", "Person", { Object: { name: { String: "Alice Chen" } } });
+  await graphAddNode(handle, "org", "bob", "Person", { Object: { name: { String: "Bob Martinez" } } });
+  await graphAddNode(handle, "org", "carol", "Person", { Object: { name: { String: "Carol Kim" } } });
+  await graphAddNode(handle, "org", "acme", "Company", { Object: { name: { String: "Acme Inc" } } });
+  await graphAddEdge(handle, "org", "alice", "acme", "WORKS_AT");
+  await graphAddEdge(handle, "org", "bob", "acme", "WORKS_AT");
+  await graphAddEdge(handle, "org", "alice", "bob", "MANAGES");
+  await graphAddEdge(handle, "org", "bob", "carol", "MANAGES");
+  await graphAddEdge(handle, "org", "carol", "alice", "FOLLOWS");
 }
 
 /**

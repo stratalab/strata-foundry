@@ -970,3 +970,82 @@ select {
   padding: 4px 0 8px;
   word-break: break-all;
 }
+
+/* Graph canvas */
+.graph-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.graph-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+.g-edge {
+  stroke: #c3c9d4;
+  stroke-width: 1.5;
+}
+.g-edge-label {
+  font-size: 9px;
+  fill: #9aa1ad;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.g-node {
+  cursor: grab;
+}
+.g-circle {
+  stroke: #fff;
+  stroke-width: 2;
+}
+.g-circle.sel {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.g-node-label {
+  font-size: 11px;
+  text-anchor: middle;
+  pointer-events: none;
+  fill: var(--text);
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+}
+.graph-overlay {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+}
+.graph-card {
+  position: absolute;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  padding: 12px;
+}
+.graph-add {
+  top: 12px;
+  left: 12px;
+  width: 330px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.graph-node-detail {
+  top: 12px;
+  right: 12px;
+  width: 300px;
+  max-height: calc(100% - 24px);
+  overflow: auto;
+}
+.g-edge-row {
+  font-size: 12px;
+  padding: 2px 0;
+}

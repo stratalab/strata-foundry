@@ -8,6 +8,7 @@ import { BranchesView } from "./features/branches/BranchesView";
 import { EventsView } from "./features/events/EventsView";
 import { JsonView } from "./features/json/JsonView";
 import { VectorView } from "./features/vector/VectorView";
+import { GraphView } from "./features/graph/GraphView";
 import "./App.css";
 
 function TabBar() {
@@ -107,6 +108,8 @@ function Workspace() {
             <JsonView key={active.id} />
           ) : section === "vector" ? (
             <VectorView key={active.id} />
+          ) : section === "graph" ? (
+            <GraphView key={active.id} />
           ) : (
             <div className="empty">
               <p className="muted">This view isn’t built yet.</p>
