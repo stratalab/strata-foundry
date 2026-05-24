@@ -99,4 +99,33 @@ mod tests {
         reg.close(h);
         assert!(reg.execute(h, r#"{"Ping":null}"#).is_err(), "closed handle should error");
     }
+
+    /// Prints the real KvPut/KvList/KvGet wire shapes so the frontend can be
+    /// typed against them. Run: `cargo test kv_wire_shapes -- --nocapture`.
+    #[test]
+    fn kv_wire_shapes() {
+        let reg = Registry::new();
+        let h = reg.open_memory().unwrap();
+
+        let put_alice = reg
+            .execute(h, r#"{"KvPut":{"key":"user:alice","value":{"Object":{"name":{"String":"Alice"},"age":{"Int":30}}}}}"#)
+            .unwrap();
+        let put_cfg = reg
+            .execute(h, r#"{"KvPut":{"key":"config:max","value":{"Int":42}}}"#)
+            .unwrap();
+        let list_all = reg.execute(h, r#"{"KvList":{}}"#).unwrap();
+        let list_pref = reg.execute(h, r#"{"KvList":{"prefix":"user:"}}"#).unwrap();
+        let get_alice = reg.execute(h, r#"{"KvGet":{"key":"user:alice"}}"#).unwrap();
+        let get_missing = reg.execute(h, r#"{"KvGet":{"key":"nope"}}"#).unwrap();
+
+        eprintln!("KvPut       -> {put_alice}");
+        eprintln!("KvPut(int)  -> {put_cfg}");
+        eprintln!("KvList{{}}    -> {list_all}");
+        eprintln!("KvList pfx  -> {list_pref}");
+        eprintln!("KvGet hit   -> {get_alice}");
+        eprintln!("KvGet miss  -> {get_missing}");
+
+        assert!(list_all.contains("user:alice") && list_all.contains("config:max"));
+        assert!(list_pref.contains("user:alice") && !list_pref.contains("config:max"));
+    }
 }
