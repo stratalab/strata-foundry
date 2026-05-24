@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useConnection } from "../../state/connection";
+import { useDatabases } from "../../state/databases";
 import { kvList, kvGet } from "../../lib/kv";
 import type { VersionedValue } from "../../lib/kv";
 import { valueType } from "../../lib/value";
@@ -8,7 +8,8 @@ import { KeyTree } from "../../components/KeyTree";
 import { JsonTree } from "../../components/JsonTree";
 
 export function KvView() {
-  const { handle } = useConnection();
+  const { active } = useDatabases();
+  const handle = active?.handle ?? null;
   const [keys, setKeys] = useState<string[]>([]);
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState<string | null>(null);

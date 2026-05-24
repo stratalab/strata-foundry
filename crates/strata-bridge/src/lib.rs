@@ -128,4 +128,35 @@ mod tests {
         assert!(list_all.contains("user:alice") && list_all.contains("config:max"));
         assert!(list_pref.contains("user:alice") && !list_pref.contains("config:max"));
     }
+
+    /// Captures the branch fork/diff/merge/cherry-pick wire shapes.
+    /// Run: `cargo test branch_wire_shapes -- --nocapture`.
+    #[test]
+    fn branch_wire_shapes() {
+        // Branching requires a disk-backed database (fork/diff/merge no-op on cache()).
+        let dir = std::env::temp_dir().join(format!("strata-bw-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let path = dir.join(".strata");
+        let reg = Registry::new();
+        let h = reg.open(path.to_str().unwrap()).unwrap();
+        let run = |c: &str| reg.execute(h, c).unwrap_or_else(|e| format!("ERR: {e}"));
+
+        run(r#"{"KvPut":{"key":"user:alice","value":{"String":"Alice"}}}"#);
+        run(r#"{"KvPut":{"key":"config:x","value":{"Int":1}}}"#);
+
+        eprintln!("BranchList  -> {}", run(r#"{"BranchList":{}}"#));
+        eprintln!("BranchFork  -> {}", run(r#"{"BranchFork":{"source":"default","destination":"feature"}}"#));
+
+        run(r#"{"KvPut":{"branch":"feature","key":"user:alice","value":{"String":"Alice v2"}}}"#);
+        run(r#"{"KvPut":{"branch":"feature","key":"user:carol","value":{"String":"Carol"}}}"#);
+
+        eprintln!("BranchGet   -> {}", run(r#"{"BranchGet":{"branch":"feature"}}"#));
+        eprintln!("BranchDiff  -> {}", run(r#"{"BranchDiff":{"branch_a":"default","branch_b":"feature"}}"#));
+        eprintln!("MergeBase   -> {}", run(r#"{"BranchMergeBase":{"branch_a":"default","branch_b":"feature"}}"#));
+        eprintln!("CherryPick  -> {}", run(r#"{"BranchCherryPick":{"source":"feature","target":"default","keys":[["default","user:carol"]]}}"#));
+        eprintln!("BranchMerge -> {}", run(r#"{"BranchMerge":{"source":"feature","target":"default","strategy":"LastWriterWins"}}"#));
+
+        reg.close(h);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }

@@ -1,4 +1,4 @@
-import { useConnection } from "../state/connection";
+import { useDatabases } from "../state/databases";
 
 export interface Section {
   id: string;
@@ -24,14 +24,15 @@ export function Sidebar({
   active: string;
   onSelect: (id: string) => void;
 }) {
-  const { status, label } = useConnection();
+  const { active: db } = useDatabases();
+  const connected = db !== null;
   return (
     <nav className="sidebar">
       <div className="brand">Strata Foundry</div>
       <div className="conn">
-        <span className={`dot ${status}`} />
-        <span className="conn-label" title={label ?? undefined}>
-          {label ?? "no database"}
+        <span className={`dot ${connected ? "connected" : ""}`} />
+        <span className="conn-label" title={db?.label ?? undefined}>
+          {db?.label ?? "no database"}
         </span>
       </div>
       <ul className="nav-list">
@@ -39,7 +40,7 @@ export function Sidebar({
           <li key={s.id}>
             <button
               className={`nav-item ${active === s.id ? "active" : ""}`}
-              disabled={!s.ready || status !== "connected"}
+              disabled={!s.ready || !connected}
               onClick={() => onSelect(s.id)}
             >
               <span>{s.label}</span>
