@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDatabases } from "../state/databases";
+import { pickDirectory } from "../lib/dialog";
 
 /** Append "/.strata" unless the path already points at one. */
 function ensureStrata(p: string): string {
@@ -30,11 +31,23 @@ export function Welcome() {
               Initialize a new <code>.strata</code> database — writes a hardware-tuned config, just
               like <code>strata init</code>.
             </p>
-            <input
-              placeholder="/path/to/my-database"
-              value={createPath}
-              onChange={(e) => setCreatePath(e.target.value)}
-            />
+            <div className="path-row">
+              <input
+                placeholder="/path/to/my-database"
+                value={createPath}
+                onChange={(e) => setCreatePath(e.target.value)}
+              />
+              <button
+                className="ghost"
+                type="button"
+                onClick={async () => {
+                  const d = await pickDirectory("Choose where to create the database");
+                  if (d) setCreatePath(d);
+                }}
+              >
+                Browse…
+              </button>
+            </div>
             <label className="check-row">
               <input type="checkbox" checked={seed} onChange={(e) => setSeed(e.target.checked)} />
               Load sample data
@@ -52,11 +65,23 @@ export function Welcome() {
             <p className="muted">
               Open a <code>.strata</code> directory you already have.
             </p>
-            <input
-              placeholder="/path/to/existing/.strata"
-              value={openPath}
-              onChange={(e) => setOpenPath(e.target.value)}
-            />
+            <div className="path-row">
+              <input
+                placeholder="/path/to/existing/.strata"
+                value={openPath}
+                onChange={(e) => setOpenPath(e.target.value)}
+              />
+              <button
+                className="ghost"
+                type="button"
+                onClick={async () => {
+                  const d = await pickDirectory("Choose a .strata database folder");
+                  if (d) setOpenPath(d);
+                }}
+              >
+                Browse…
+              </button>
+            </div>
             <button
               disabled={!openPath.trim() || opening}
               onClick={() => openAtPath(ensureStrata(openPath))}

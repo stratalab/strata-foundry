@@ -4,6 +4,7 @@ import { Sidebar } from "./components/Sidebar";
 import { BranchSwitcher } from "./components/BranchSwitcher";
 import { SpaceSwitcher } from "./components/SpaceSwitcher";
 import { Welcome } from "./components/Welcome";
+import { pickDirectory } from "./lib/dialog";
 import { KvView } from "./features/kv/KvView";
 import { BranchesView } from "./features/branches/BranchesView";
 import { EventsView } from "./features/events/EventsView";
@@ -80,6 +81,16 @@ function Workspace() {
                   value={path}
                   onChange={(e) => setPath(e.target.value)}
                 />
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={async () => {
+                    const d = await pickDirectory("Open a .strata database");
+                    if (d) setPath(d);
+                  }}
+                >
+                  Browse…
+                </button>
                 <button type="submit" disabled={!path.trim() || opening}>
                   Open
                 </button>

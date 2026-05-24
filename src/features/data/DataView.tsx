@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDatabases } from "../../state/databases";
 import { dbExport, arrowImport } from "../../lib/arrow";
 import type { ExportFormat, ExportPrimitive, ExportResult, ImportResult, ImportTarget } from "../../lib/arrow";
+import { pickFile, pickSavePath } from "../../lib/dialog";
 
 export function DataView() {
   const { active } = useDatabases();
@@ -150,6 +151,19 @@ export function DataView() {
                 value={exportPath}
                 onChange={(e) => setExportPath(e.target.value)}
               />
+              <button
+                className="ghost"
+                type="button"
+                onClick={async () => {
+                  const p = await pickSavePath({
+                    title: "Export to…",
+                    defaultPath: `${primitive}.${format}`,
+                  });
+                  if (p) setExportPath(p);
+                }}
+              >
+                Browse…
+              </button>
             </div>
             <button onClick={runExport} disabled={exporting}>
               Export
@@ -177,6 +191,19 @@ export function DataView() {
                 value={filePath}
                 onChange={(e) => setFilePath(e.target.value)}
               />
+              <button
+                className="ghost"
+                type="button"
+                onClick={async () => {
+                  const f = await pickFile({
+                    title: "Choose a file to import",
+                    extensions: ["parquet", "csv", "jsonl"],
+                  });
+                  if (f) setFilePath(f);
+                }}
+              >
+                Browse…
+              </button>
             </div>
             <div className="io-field">
               <span className="dk">target</span>
