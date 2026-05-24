@@ -8,7 +8,12 @@ edition = "2021"
 [lib]
 # The `_lib` suffix keeps the lib name distinct from the bin (a Windows quirk).
 name = "strata_foundry_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
+# Desktop links this as an rlib into the bin. The mobile crate-types
+# (staticlib/cdylib) are dropped because on Linux, linking llama.cpp's non-PIC
+# static lib (pulled in by the `embed` feature) into a cdylib fails with
+# `relocation R_X86_64_PC32 against 'stderr'`. The rlib -> PIE-exe path links
+# cleanly. Re-add them (and build llama.cpp with -fPIC) when targeting mobile.
+crate-type = ["rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
