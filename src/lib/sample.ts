@@ -5,6 +5,7 @@ import { branchFork } from "./branch";
 import { spaceCreate } from "./space";
 import { eventAppend } from "./event";
 import { jsonSet } from "./json";
+import { vectorCreateCollection, vectorUpsert } from "./vector";
 import type { Handle } from "./strata";
 
 /** Seed KV, events, JSON, and a second space on the default branch. */
@@ -70,6 +71,13 @@ export async function seedSample(handle: Handle): Promise<void> {
       max_steps: { Int: 100 },
     },
   });
+
+  // A small vector collection (4-dim) so nearest-neighbour search is demoable.
+  await vectorCreateCollection(handle, "embeddings", 4, "cosine");
+  await vectorUpsert(handle, "embeddings", "doc:alpha", [1, 0, 0, 0], { Object: { title: { String: "Alpha" } } });
+  await vectorUpsert(handle, "embeddings", "doc:beta", [0, 1, 0, 0], { Object: { title: { String: "Beta" } } });
+  await vectorUpsert(handle, "embeddings", "doc:gamma", [0.9, 0.1, 0, 0], { Object: { title: { String: "Gamma" } } });
+  await vectorUpsert(handle, "embeddings", "doc:delta", [0, 0, 1, 0], { Object: { title: { String: "Delta" } } });
 }
 
 /**

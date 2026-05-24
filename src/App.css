@@ -879,3 +879,94 @@ select {
   border-top: 1px solid var(--border);
   border-radius: 0;
 }
+
+/* Vector collections + search */
+.tree-scroll {
+  flex: 1;
+  min-height: 0;
+}
+.coll-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+.coll-item:hover {
+  background: var(--bg-alt);
+}
+.coll-item.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.coll-name {
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 12.5px;
+}
+.coll-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.coll-new {
+  border-top: 1px solid var(--border);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.coll-new-row {
+  display: flex;
+  gap: 6px;
+}
+.coll-new-row select {
+  flex: 1;
+}
+.vec-search {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vec-matches {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vec-match {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.vec-match:hover {
+  border-color: var(--accent);
+}
+.vec-match-head {
+  display: flex;
+  align-items: center;
+  font-size: 12.5px;
+}
+.score-bar {
+  margin-top: 6px;
+  height: 6px;
+  background: var(--bg-alt);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.score-fill {
+  height: 100%;
+  background: var(--accent);
+}
+.vec-embedding {
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 4px 0 8px;
+  word-break: break-all;
+}

@@ -216,4 +216,21 @@ mod tests {
         eprintln!("JsonGet  -> {}", run(r#"{"JsonGet":{"key":"doc:readme","path":"$"}}"#));
         eprintln!("JsonCount-> {}", run(r#"{"JsonCount":{}}"#));
     }
+
+    /// Captures Vector wire shapes. Run: `cargo test vector_wire_shapes -- --nocapture`.
+    #[test]
+    fn vector_wire_shapes() {
+        let reg = Registry::new();
+        let h = reg.open_memory().unwrap();
+        let run = |c: &str| reg.execute(h, c).unwrap_or_else(|e| format!("ERR: {e}"));
+
+        eprintln!("CreateColl -> {}", run(r#"{"VectorCreateCollection":{"collection":"docs","dimension":4,"metric":"cosine"}}"#));
+        eprintln!("Upsert     -> {}", run(r#"{"VectorUpsert":{"collection":"docs","key":"a","vector":[1.0,0.0,0.0,0.0],"metadata":{"Object":{"title":{"String":"Alpha"}}}}}"#));
+        run(r#"{"VectorUpsert":{"collection":"docs","key":"b","vector":[0.0,1.0,0.0,0.0],"metadata":{"Object":{"title":{"String":"Beta"}}}}}"#);
+        run(r#"{"VectorUpsert":{"collection":"docs","key":"c","vector":[0.9,0.1,0.0,0.0],"metadata":{"Object":{"title":{"String":"Gamma"}}}}}"#);
+        eprintln!("ListColl   -> {}", run(r#"{"VectorListCollections":{}}"#));
+        eprintln!("Count      -> {}", run(r#"{"VectorCount":{"collection":"docs"}}"#));
+        eprintln!("Query      -> {}", run(r#"{"VectorQuery":{"collection":"docs","query":[1.0,0.0,0.0,0.0],"k":3}}"#));
+        eprintln!("Get        -> {}", run(r#"{"VectorGet":{"collection":"docs","key":"a"}}"#));
+    }
 }

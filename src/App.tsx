@@ -7,6 +7,7 @@ import { KvView } from "./features/kv/KvView";
 import { BranchesView } from "./features/branches/BranchesView";
 import { EventsView } from "./features/events/EventsView";
 import { JsonView } from "./features/json/JsonView";
+import { VectorView } from "./features/vector/VectorView";
 import "./App.css";
 
 function TabBar() {
@@ -104,6 +105,8 @@ function Workspace() {
             <EventsView key={active.id} />
           ) : section === "json" ? (
             <JsonView key={active.id} />
+          ) : section === "vector" ? (
+            <VectorView key={active.id} />
           ) : (
             <div className="empty">
               <p className="muted">This view isn’t built yet.</p>
