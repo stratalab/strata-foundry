@@ -92,7 +92,11 @@ export function ModelsView() {
                       <td className="muted">{fmtBytes(m.size_bytes)}</td>
                       <td className="muted">{task === "Embed" ? m.embedding_dim : ""}</td>
                       <td>
-                        {m.is_local ? (
+                        {pulling === m.name ? (
+                          <div className="progress-bar" title="downloading…">
+                            <div className="progress-indeterminate" />
+                          </div>
+                        ) : m.is_local ? (
                           <span className="badge">downloaded</span>
                         ) : (
                           <button
@@ -100,7 +104,7 @@ export function ModelsView() {
                             disabled={pulling !== null}
                             onClick={() => download(m.name)}
                           >
-                            {pulling === m.name ? "Downloading…" : "Download"}
+                            Download
                           </button>
                         )}
                       </td>
@@ -113,7 +117,15 @@ export function ModelsView() {
         })}
 
         {pulling && (
-          <div className="muted pad">Downloading {pulling} — large models can take a while.</div>
+          <div className="muted pad">
+            Downloading {pulling}
+            {(() => {
+              const m = models.find((x) => x.name === pulling);
+              return m ? ` (${fmtBytes(m.size_bytes)})` : "";
+            })()}{" "}
+            — the engine doesn't stream progress, so this is a busy indicator; large models
+            take a while.
+          </div>
         )}
       </div>
     </div>
