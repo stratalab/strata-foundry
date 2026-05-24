@@ -23,6 +23,14 @@ fn db_open(state: State<'_, AppState>, path: String) -> Result<u64, String> {
     state.registry.open(&path)
 }
 
+/// Initialize a new database (replicates `strata init`): create directory,
+/// write a profile-tuned strata.toml, and open. Returns JSON
+/// `{ handle, profile, cores, ram_gb }`.
+#[tauri::command]
+fn db_init(state: State<'_, AppState>, path: String) -> Result<String, String> {
+    state.registry.init(&path)
+}
+
 /// Open an ephemeral in-memory database. Returns a handle ID.
 #[tauri::command]
 fn db_open_memory(state: State<'_, AppState>) -> Result<u64, String> {
@@ -50,6 +58,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             db_ping,
             db_open,
+            db_init,
             db_open_memory,
             db_close,
             db_execute

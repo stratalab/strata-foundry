@@ -16,6 +16,21 @@ export function open(path: string): Promise<Handle> {
   return invoke<Handle>("db_open", { path });
 }
 
+/** Result of `init`: handle plus the detected hardware profile. */
+export interface InitInfo {
+  handle: Handle;
+  profile: string;
+  cores: number;
+  ram_gb: number;
+}
+
+/** Initialize a new database (replicates `strata init`): create dir + tuned
+ * strata.toml + open. */
+export async function init(path: string): Promise<InitInfo> {
+  const json = await invoke<string>("db_init", { path });
+  return JSON.parse(json) as InitInfo;
+}
+
 /** Open an ephemeral in-memory database. */
 export function openMemory(): Promise<Handle> {
   return invoke<Handle>("db_open_memory");

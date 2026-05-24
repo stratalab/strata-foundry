@@ -8,7 +8,10 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use dashmap::DashMap;
-use stratadb::{Command, Executor, Output, Strata};
+use stratadb::{
+    apply_profile_if_defaults, detect_hardware, Command, Executor, Output, Profile, Strata,
+    StrataConfig,
+};
 
 /// Thread-safe registry of open database handles.
 ///
@@ -38,6 +41,36 @@ impl Registry {
     pub fn open_memory(&self) -> Result<u64, String> {
         let strata = Strata::cache().map_err(|e| e.to_string())?;
         Ok(self.insert(strata))
+    }
+
+    /// Initialize a new database, replicating `strata init`: create the
+    /// directory, write a hardware-profile-tuned `strata.toml`, open it, and
+    /// return a handle plus the detected profile info as JSON.
+    pub fn init(&self, path: &str) -> Result<String, String> {
+        let dir = std::path::Path::new(path);
+        std::fs::create_dir_all(dir).map_err(|e| format!("failed to create {path}: {e}"))?;
+
+        let hw = detect_hardware();
+        let profile = Profile::classify(hw);
+
+        let config_path = dir.join("strata.toml");
+        if !config_path.exists() {
+            let mut cfg = StrataConfig::default();
+            apply_profile_if_defaults(&mut cfg, profile, hw);
+            cfg.write_to_file(&config_path)
+                .map_err(|e| format!("failed to write strata.toml: {e}"))?;
+        }
+
+        let strata = Strata::open(dir).map_err(|e| e.to_string())?;
+        let id = self.insert(strata);
+
+        let ram_gb = hw.ram_bytes as f64 / (1024.0 * 1024.0 * 1024.0);
+        Ok(format!(
+            r#"{{"handle":{id},"profile":{},"cores":{},"ram_gb":{:.1}}}"#,
+            serde_json::json!(profile.to_string()),
+            hw.cores,
+            ram_gb,
+        ))
     }
 
     /// Close a handle, dropping its executor (and the database if last ref).
@@ -251,5 +284,25 @@ mod tests {
         eprintln!("ListNodes-> {}", run(r#"{"GraphListNodes":{"graph":"social"}}"#));
         eprintln!("GetNode  -> {}", run(r#"{"GraphGetNode":{"graph":"social","node_id":"alice"}}"#));
         eprintln!("Neighbors-> {}", run(r#"{"GraphNeighbors":{"graph":"social","node_id":"alice","direction":"both"}}"#));
+    }
+
+    /// `init` writes a strata.toml and returns a working handle (replicates `strata init`).
+    #[test]
+    fn init_writes_config_and_opens() {
+        let dir = std::env::temp_dir().join(format!("strata-init-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let path = dir.join(".strata");
+        let reg = Registry::new();
+
+        let json = reg.init(path.to_str().unwrap()).expect("init");
+        assert!(json.contains("\"handle\"") && json.contains("\"profile\""), "got: {json}");
+        assert!(path.join("strata.toml").exists(), "strata.toml should be written");
+
+        let v: serde_json::Value = serde_json::from_str(&json).unwrap();
+        let h = v["handle"].as_u64().unwrap();
+        assert!(reg.execute(h, r#"{"Ping":null}"#).unwrap().contains("Pong"));
+
+        reg.close(h);
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

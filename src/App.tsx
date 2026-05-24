@@ -3,6 +3,7 @@ import { DatabasesProvider, useDatabases } from "./state/databases";
 import { Sidebar } from "./components/Sidebar";
 import { BranchSwitcher } from "./components/BranchSwitcher";
 import { SpaceSwitcher } from "./components/SpaceSwitcher";
+import { Welcome } from "./components/Welcome";
 import { KvView } from "./features/kv/KvView";
 import { BranchesView } from "./features/branches/BranchesView";
 import { EventsView } from "./features/events/EventsView";
@@ -44,7 +45,7 @@ function TabBar() {
 }
 
 function Workspace() {
-  const { active, opening, error, openScratch, openDiskDemo, openAtPath, closeDb } =
+  const { active, opening, error, notice, openScratch, openDiskDemo, openAtPath, closeDb, dismissNotice } =
     useDatabases();
   const [section, setSection] = useState("kv");
   const [path, setPath] = useState("");
@@ -54,68 +55,77 @@ function Workspace() {
       <Sidebar active={section} onSelect={setSection} />
       <main className="main">
         <TabBar />
-        <div className="topbar">
-          <button onClick={openScratch} disabled={opening}>
-            Open scratch DB
-          </button>
-          <button className="ghost" onClick={openDiskDemo} disabled={opening}>
-            New disk DB
-          </button>
-          <form
-            className="open-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (path.trim()) {
-                openAtPath(path.trim());
-                setPath("");
-              }
-            }}
-          >
-            <input
-              placeholder="/path/to/project/.strata"
-              value={path}
-              onChange={(e) => setPath(e.target.value)}
-            />
-            <button type="submit" disabled={!path.trim() || opening}>
-              Open
-            </button>
-          </form>
-          <span className="grow" />
-          {active && <SpaceSwitcher />}
-          {active && <BranchSwitcher />}
-          {active && (
-            <button className="ghost" onClick={() => closeDb(active.id)}>
-              Close
-            </button>
-          )}
-        </div>
-
-        {error && <div className="error pad">{error}</div>}
-
-        <div className="content">
-          {!active ? (
-            <div className="empty">
-              <h1>Strata Foundry</h1>
-              <p className="muted">Open a database to begin.</p>
+        {active ? (
+          <>
+            <div className="topbar">
+              <button onClick={openScratch} disabled={opening}>
+                Open scratch DB
+              </button>
+              <button className="ghost" onClick={openDiskDemo} disabled={opening}>
+                New disk DB
+              </button>
+              <form
+                className="open-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (path.trim()) {
+                    openAtPath(path.trim());
+                    setPath("");
+                  }
+                }}
+              >
+                <input
+                  placeholder="/path/to/project/.strata"
+                  value={path}
+                  onChange={(e) => setPath(e.target.value)}
+                />
+                <button type="submit" disabled={!path.trim() || opening}>
+                  Open
+                </button>
+              </form>
+              <span className="grow" />
+              <SpaceSwitcher />
+              <BranchSwitcher />
+              <button className="ghost" onClick={() => closeDb(active.id)}>
+                Close
+              </button>
             </div>
-          ) : section === "branches" ? (
-            <BranchesView key={active.id} />
-          ) : section === "kv" ? (
-            <KvView key={active.id} />
-          ) : section === "event" ? (
-            <EventsView key={active.id} />
-          ) : section === "json" ? (
-            <JsonView key={active.id} />
-          ) : section === "vector" ? (
-            <VectorView key={active.id} />
-          ) : section === "graph" ? (
-            <GraphView key={active.id} />
-          ) : (
-            <div className="empty">
-              <p className="muted">This view isn’t built yet.</p>
+
+            {error && <div className="error pad">{error}</div>}
+            {notice && (
+              <div className="notice pad">
+                <span>{notice}</span>
+                <button className="ghost tiny" onClick={dismissNotice}>
+                  ×
+                </button>
+              </div>
+            )}
+
+            <div className="content">
+              {section === "branches" ? (
+                <BranchesView key={active.id} />
+              ) : section === "kv" ? (
+                <KvView key={active.id} />
+              ) : section === "event" ? (
+                <EventsView key={active.id} />
+              ) : section === "json" ? (
+                <JsonView key={active.id} />
+              ) : section === "vector" ? (
+                <VectorView key={active.id} />
+              ) : section === "graph" ? (
+                <GraphView key={active.id} />
+              ) : (
+                <div className="empty">
+                  <p className="muted">This view isn’t built yet.</p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div className="content">
+            <Welcome />
+          </div>
+        )}
       </main>
     </div>
   );

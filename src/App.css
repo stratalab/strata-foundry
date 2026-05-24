@@ -1049,3 +1049,103 @@ select {
   font-size: 12px;
   padding: 2px 0;
 }
+
+/* Welcome / first-run */
+.welcome {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+}
+.welcome-inner {
+  max-width: 880px;
+  width: 100%;
+  padding: 52px 24px;
+  text-align: center;
+}
+.welcome-logo {
+  font-size: 40px;
+  color: var(--accent);
+  line-height: 1;
+}
+.welcome-inner h1 {
+  margin: 10px 0 4px;
+}
+.welcome-tagline {
+  max-width: 580px;
+  margin: 0 auto 30px;
+}
+.welcome-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  text-align: left;
+}
+.welcome-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg);
+}
+.welcome-card h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.welcome-card p {
+  margin: 0;
+  font-size: 12.5px;
+  flex: 1;
+}
+.welcome-card input {
+  width: 100%;
+}
+.welcome-card button {
+  align-self: flex-start;
+}
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+}
+.check-row input {
+  width: auto;
+}
+.welcome-recents {
+  margin-top: 30px;
+  text-align: left;
+}
+.recent-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: var(--accent);
+  border: none;
+  padding: 5px 6px;
+  border-radius: 6px;
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recent-item:hover {
+  background: var(--bg-alt);
+}
+
+/* Notice banner */
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+}
