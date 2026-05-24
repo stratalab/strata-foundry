@@ -176,4 +176,22 @@ mod tests {
         eprintln!("KvDelete    -> {}", run(r#"{"KvDelete":{"key":"k"}}"#));
         eprintln!("GetAfterDel -> {}", run(r#"{"KvGet":{"key":"k"}}"#));
     }
+
+    /// Captures Space wire shapes + key isolation per space (on in-memory).
+    /// Run: `cargo test space_wire_shapes -- --nocapture`.
+    #[test]
+    fn space_wire_shapes() {
+        let reg = Registry::new();
+        let h = reg.open_memory().unwrap();
+        let run = |c: &str| reg.execute(h, c).unwrap_or_else(|e| format!("ERR: {e}"));
+
+        run(r#"{"KvPut":{"key":"user:alice","value":{"String":"Alice"}}}"#);
+        eprintln!("SpaceList(0) -> {}", run(r#"{"SpaceList":{}}"#));
+        eprintln!("SpaceCreate  -> {}", run(r#"{"SpaceCreate":{"space":"analytics"}}"#));
+        eprintln!("SpaceList(1) -> {}", run(r#"{"SpaceList":{}}"#));
+        run(r#"{"KvPut":{"space":"analytics","key":"metric:dau","value":{"Int":1000}}}"#);
+        eprintln!("KvList analytics -> {}", run(r#"{"KvList":{"space":"analytics"}}"#));
+        eprintln!("KvList default   -> {}", run(r#"{"KvList":{}}"#));
+        eprintln!("SpaceExists  -> {}", run(r#"{"SpaceExists":{"space":"analytics"}}"#));
+    }
 }

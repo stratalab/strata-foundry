@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DatabasesProvider, useDatabases } from "./state/databases";
 import { Sidebar } from "./components/Sidebar";
 import { BranchSwitcher } from "./components/BranchSwitcher";
+import { SpaceSwitcher } from "./components/SpaceSwitcher";
 import { KvView } from "./features/kv/KvView";
 import { BranchesView } from "./features/branches/BranchesView";
 import "./App.css";
@@ -76,6 +77,7 @@ function Workspace() {
             </button>
           </form>
           <span className="grow" />
+          {active && <SpaceSwitcher />}
           {active && <BranchSwitcher />}
           {active && (
             <button className="ghost" onClick={() => closeDb(active.id)}>

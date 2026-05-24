@@ -15,6 +15,7 @@ export function KvView() {
   const { active } = useDatabases();
   const handle = active?.handle ?? null;
   const branch = active?.currentBranch;
+  const space = active?.currentSpace;
 
   const [keys, setKeys] = useState<string[]>([]);
   const [filter, setFilter] = useState("");
@@ -36,13 +37,13 @@ export function KvView() {
     setLoading(true);
     setError(null);
     try {
-      setKeys(await kvList(handle, branch));
+      setKeys(await kvList(handle, branch, space));
     } catch (e) {
       setError(String(e));
     } finally {
       setLoading(false);
     }
-  }, [handle, branch]);
+  }, [handle, branch, space]);
 
   useEffect(() => {
     refresh();
@@ -57,13 +58,13 @@ export function KvView() {
     }
     setMode((m) => (m === "add" ? "add" : "view"));
     let cancelled = false;
-    kvGet(handle, selected, branch)
+    kvGet(handle, selected, branch, space)
       .then((v) => !cancelled && setDetail(v))
       .catch(() => !cancelled && setDetail(null));
     return () => {
       cancelled = true;
     };
-  }, [handle, selected, branch]);
+  }, [handle, selected, branch, space]);
 
   const shown = keys.filter((k) => k.toLowerCase().includes(filter.toLowerCase()));
   const tree = buildKeyTree(shown);
@@ -94,7 +95,7 @@ export function KvView() {
       return;
     }
     try {
-      await kvPut(handle, key, value, branch);
+      await kvPut(handle, key, value, branch, space);
       await refresh();
       setSelected(key);
       setMode("view");
@@ -106,7 +107,7 @@ export function KvView() {
   async function del() {
     if (handle === null || selected === null) return;
     try {
-      await kvDelete(handle, selected, branch);
+      await kvDelete(handle, selected, branch, space);
       setSelected(null);
       setDeleting(false);
       await refresh();
@@ -118,7 +119,7 @@ export function KvView() {
   async function openHistory() {
     if (handle === null || selected === null) return;
     try {
-      const h = await kvHistory(handle, selected, branch);
+      const h = await kvHistory(handle, selected, branch, space);
       setHistory(h);
       setHistSel(h[0]?.version ?? null);
       setMode("history");
@@ -130,13 +131,12 @@ export function KvView() {
   async function restore(v: VersionedValue) {
     if (handle === null || selected === null) return;
     try {
-      await kvPut(handle, selected, v.value, branch);
+      await kvPut(handle, selected, v.value, branch, space);
       await refresh();
-      const h = await kvHistory(handle, selected, branch);
+      const h = await kvHistory(handle, selected, branch, space);
       setHistory(h);
       setHistSel(h[0]?.version ?? null);
-      const cur = await kvGet(handle, selected, branch);
-      setDetail(cur);
+      setDetail(await kvGet(handle, selected, branch, space));
     } catch (e) {
       setError(String(e));
     }
@@ -147,7 +147,7 @@ export function KvView() {
       <header className="feature-head">
         <h2>Key–Value</h2>
         <span className="muted">
-          {shown.length} / {keys.length} keys · branch <code>{branch}</code>
+          {shown.length} / {keys.length} keys · <code>{branch}</code> / <code>{space}</code>
         </span>
         <span className="grow" />
         <button onClick={openAdd}>Add key</button>
@@ -216,7 +216,7 @@ export function KvView() {
                 </button>
               </div>
               <div className="muted" style={{ paddingBottom: 8 }}>
-                {history.length} versions on branch <code>{branch}</code>
+                {history.length} versions · <code>{branch}</code> / <code>{space}</code>
               </div>
               {history.map((v) => (
                 <div
@@ -249,7 +249,7 @@ export function KvView() {
           ) : selected === null ? (
             <div className="muted pad">Select a key to inspect</div>
           ) : detail === null ? (
-            <div className="muted pad">Key not found on this branch</div>
+            <div className="muted pad">Key not found in this branch / space</div>
           ) : (
             <>
               <div className="detail-row">

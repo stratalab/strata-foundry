@@ -2,10 +2,12 @@
 
 import { kvPut } from "./kv";
 import { branchFork } from "./branch";
+import { spaceCreate } from "./space";
 import type { Handle } from "./strata";
 
-/** Seed KV sample data on the default branch (works on scratch + disk). */
+/** Seed KV sample data on the default branch, across two spaces. */
 export async function seedSample(handle: Handle): Promise<void> {
+  // default space
   await kvPut(handle, "user:alice", {
     Object: {
       name: { String: "Alice Chen" },
@@ -32,6 +34,12 @@ export async function seedSample(handle: Handle): Promise<void> {
   await kvPut(handle, "cache:exchange_rates", {
     Object: { USD_EUR: { Float: 0.92 }, USD_GBP: { Float: 0.79 } },
   });
+
+  // a second space to show grouping
+  await spaceCreate(handle, "analytics");
+  await kvPut(handle, "metric:dau", { Int: 4821 }, undefined, "analytics");
+  await kvPut(handle, "metric:signups", { Int: 137 }, undefined, "analytics");
+  await kvPut(handle, "metric:churn_rate", { Float: 0.021 }, undefined, "analytics");
 }
 
 /**

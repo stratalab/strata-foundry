@@ -1,4 +1,4 @@
-// Multiple open databases, each with its own handle and current branch.
+// Multiple open databases, each with its own handle, current branch, and space.
 
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
@@ -17,6 +17,8 @@ export interface OpenDb {
   supportsBranching: boolean;
   /** The branch currently being viewed. */
   currentBranch: string;
+  /** The space (key grouping) currently being viewed. */
+  currentSpace: string;
 }
 
 interface DatabasesCtx {
@@ -31,6 +33,7 @@ interface DatabasesCtx {
   closeDb: (id: string) => Promise<void>;
   setActive: (id: string) => void;
   setBranch: (branch: string) => void;
+  setSpace: (space: string) => void;
 }
 
 const Ctx = createContext<DatabasesCtx | null>(null);
@@ -63,7 +66,7 @@ export function DatabasesProvider({ children }: { children: ReactNode }) {
     try {
       const handle = await openMemory();
       await seedSample(handle);
-      add({ id: nextId(), handle, label: "scratch", kind: "scratch", supportsBranching: false, currentBranch: "default" });
+      add({ id: nextId(), handle, label: "scratch", kind: "scratch", supportsBranching: false, currentBranch: "default", currentSpace: "default" });
     } catch (e) {
       setError(String(e));
     } finally {
@@ -78,7 +81,7 @@ export function DatabasesProvider({ children }: { children: ReactNode }) {
       const path = `/tmp/strata-foundry-demo/db-${Date.now()}/.strata`;
       const handle = await openPath(path);
       await seedDiskSample(handle);
-      add({ id: nextId(), handle, label: basename(path), kind: "disk", supportsBranching: true, currentBranch: "default" });
+      add({ id: nextId(), handle, label: basename(path), kind: "disk", supportsBranching: true, currentBranch: "default", currentSpace: "default" });
     } catch (e) {
       setError(String(e));
     } finally {
@@ -91,7 +94,7 @@ export function DatabasesProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const handle = await openPath(path);
-      add({ id: nextId(), handle, label: basename(path), kind: "disk", supportsBranching: true, currentBranch: "default" });
+      add({ id: nextId(), handle, label: basename(path), kind: "disk", supportsBranching: true, currentBranch: "default", currentSpace: "default" });
     } catch (e) {
       setError(String(e));
     } finally {
@@ -120,7 +123,19 @@ export function DatabasesProvider({ children }: { children: ReactNode }) {
 
   const setBranch = useCallback(
     (branch: string) => {
-      setDbs((prev) => prev.map((d) => (d.id === activeId ? { ...d, currentBranch: branch } : d)));
+      // Spaces are per-branch; reset to default when switching branches.
+      setDbs((prev) =>
+        prev.map((d) =>
+          d.id === activeId ? { ...d, currentBranch: branch, currentSpace: "default" } : d,
+        ),
+      );
+    },
+    [activeId],
+  );
+
+  const setSpace = useCallback(
+    (space: string) => {
+      setDbs((prev) => prev.map((d) => (d.id === activeId ? { ...d, currentSpace: space } : d)));
     },
     [activeId],
   );
@@ -141,6 +156,7 @@ export function DatabasesProvider({ children }: { children: ReactNode }) {
         closeDb,
         setActive,
         setBranch,
+        setSpace,
       }}
     >
       {children}
