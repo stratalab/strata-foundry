@@ -1,0 +1,10 @@
+[package]
+name = "strata-bridge"
+version = "0.1.0"
+edition = "2021"
+description = "Tauri-independent bridge to stratadb: handle registry + JSON command execution"
+
+[dependencies]
+stratadb = { path = "../../../strata-core" }
+serde_json = "1"
+dashmap = "6"
