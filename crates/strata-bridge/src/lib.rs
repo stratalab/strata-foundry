@@ -305,4 +305,33 @@ mod tests {
         reg.close(h);
         let _ = std::fs::remove_dir_all(&dir);
     }
+
+    /// Arrow export -> file -> re-import round-trip (requires the `arrow` feature).
+    #[test]
+    fn arrow_export_import_roundtrip() {
+        let reg = Registry::new();
+        let h = reg.open_memory().unwrap();
+        let run = |c: &str| reg.execute(h, c).unwrap_or_else(|e| format!("ERR: {e}"));
+        run(r#"{"KvPut":{"key":"user:alice","value":{"String":"Alice"}}}"#);
+        run(r#"{"KvPut":{"key":"user:bob","value":{"String":"Bob"}}}"#);
+
+        let inline = run(r#"{"DbExport":{"primitive":"kv","format":"jsonl"}}"#);
+        eprintln!("Export inline -> {inline}");
+        assert!(inline.contains("Exported") && inline.contains("row_count"), "got {inline}");
+
+        let dir = std::env::temp_dir().join(format!("strata-arrow-{}", std::process::id()));
+        let _ = std::fs::create_dir_all(&dir);
+        let file = dir.join("kv.jsonl");
+        let fp = serde_json::json!(file.to_str().unwrap());
+        let exp = run(&format!(r#"{{"DbExport":{{"primitive":"kv","format":"jsonl","path":{fp}}}}}"#));
+        eprintln!("Export file   -> {exp}");
+        assert!(file.exists(), "export file should be written");
+
+        let imp = run(&format!(r#"{{"ArrowImport":{{"file_path":{fp},"target":"kv","format":"jsonl"}}}}"#));
+        eprintln!("Import        -> {imp}");
+        assert!(imp.contains("ArrowImported") && imp.contains("rows_imported"), "got {imp}");
+
+        reg.close(h);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }

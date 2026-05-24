@@ -14,6 +14,7 @@ export const SECTIONS: Section[] = [
   { id: "json", label: "JSON", ready: true },
   { id: "vector", label: "Vectors", ready: true },
   { id: "graph", label: "Graph", ready: true },
+  { id: "data", label: "Import / Export", ready: true },
   { id: "search", label: "Search", ready: false },
 ];
 

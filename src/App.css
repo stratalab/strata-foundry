@@ -1138,6 +1138,35 @@ select {
   background: var(--bg-alt);
 }
 
+/* Import / Export */
+.io-body {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+.io-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.io-field .dk {
+  width: 92px;
+  flex-shrink: 0;
+}
+.io-field input,
+.io-field select {
+  flex: 1;
+  min-width: 0;
+}
+.io-result {
+  margin-top: 10px;
+}
+.io-result .value-edit {
+  min-height: 180px;
+  margin-top: 6px;
+}
+
 /* Notice banner */
 .notice {
   display: flex;

@@ -10,6 +10,7 @@ import { EventsView } from "./features/events/EventsView";
 import { JsonView } from "./features/json/JsonView";
 import { VectorView } from "./features/vector/VectorView";
 import { GraphView } from "./features/graph/GraphView";
+import { DataView } from "./features/data/DataView";
 import "./App.css";
 
 function TabBar() {
@@ -114,6 +115,8 @@ function Workspace() {
                 <VectorView key={active.id} />
               ) : section === "graph" ? (
                 <GraphView key={active.id} />
+              ) : section === "data" ? (
+                <DataView key={active.id} />
               ) : (
                 <div className="empty">
                   <p className="muted">This view isn’t built yet.</p>
