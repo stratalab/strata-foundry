@@ -349,4 +349,20 @@ mod tests {
         eprintln!("ConfigSet   -> {}", run(r#"{"ConfigureSet":{"key":"embed_batch_size","value":"256"}}"#));
         eprintln!("ConfigKey   -> {}", run(r#"{"ConfigureGetKey":{"key":"embed_batch_size"}}"#));
     }
+
+    /// Captures Search (keyword/BM25) wire shapes across primitives.
+    /// Run: `cargo test search_wire_shapes -- --nocapture`.
+    #[test]
+    fn search_wire_shapes() {
+        let reg = Registry::new();
+        let h = reg.open_memory().unwrap();
+        let run = |c: &str| reg.execute(h, c).unwrap_or_else(|e| format!("ERR: {e}"));
+        run(r#"{"KvPut":{"key":"user:alice","value":{"Object":{"name":{"String":"Alice"},"role":{"String":"admin"}}}}}"#);
+        run(r#"{"KvPut":{"key":"user:bob","value":{"Object":{"name":{"String":"Bob"},"role":{"String":"developer"}}}}}"#);
+        run(r#"{"JsonSet":{"key":"doc:readme","path":"$","value":{"Object":{"title":{"String":"admin guide"}}}}}"#);
+        run(r#"{"EventAppend":{"event_type":"login","payload":{"Object":{"user":{"String":"alice"}}}}}"#);
+
+        eprintln!("Search kw   -> {}", run(r#"{"Search":{"search":{"query":"admin","recipe":"keyword","k":10}}}"#));
+        eprintln!("Search def  -> {}", run(r#"{"Search":{"search":{"query":"alice","k":5}}}"#));
+    }
 }

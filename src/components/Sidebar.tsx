@@ -18,7 +18,7 @@ export const SECTIONS: Section[] = [
   { id: "generate", label: "Generate", ready: true },
   { id: "models", label: "Models", ready: true },
   { id: "inference", label: "Inference", ready: true },
-  { id: "search", label: "Search", ready: false },
+  { id: "search", label: "Search", ready: true },
 ];
 
 export function Sidebar({

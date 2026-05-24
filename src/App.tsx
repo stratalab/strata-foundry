@@ -15,6 +15,7 @@ import { DataView } from "./features/data/DataView";
 import { GenerationView } from "./features/generation/GenerationView";
 import { ModelsView } from "./features/models/ModelsView";
 import { InferenceView } from "./features/inference/InferenceView";
+import { SearchView } from "./features/search/SearchView";
 import "./App.css";
 
 function TabBar() {
@@ -137,6 +138,8 @@ function Workspace() {
                 <ModelsView key={active.id} />
               ) : section === "inference" ? (
                 <InferenceView key={active.id} />
+              ) : section === "search" ? (
+                <SearchView key={active.id} />
               ) : (
                 <div className="empty">
                   <p className="muted">This view isn’t built yet.</p>

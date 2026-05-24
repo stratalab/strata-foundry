@@ -1204,6 +1204,54 @@ select {
   border-bottom: 1px solid var(--border);
 }
 
+/* Search */
+.search-body {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+.search-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.search-input {
+  flex: 1;
+  font-size: 14px;
+  padding: 8px 12px;
+}
+.search-stats {
+  font-size: 12px;
+  padding-bottom: 10px;
+}
+.search-hit {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+.hit-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+.hit-rank {
+  color: var(--text-dim);
+  font-size: 11px;
+  min-width: 18px;
+}
+.hit-snippet {
+  margin-top: 6px;
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 80px;
+  overflow: hidden;
+}
+
 /* Notice banner */
 .notice {
   display: flex;
