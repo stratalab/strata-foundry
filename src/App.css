@@ -1175,6 +1175,35 @@ select {
   margin-top: 6px;
 }
 
+/* Inference / generation */
+.io-mini {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.gen-output {
+  margin-top: 14px;
+}
+.model-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-top: 8px;
+}
+.model-table th {
+  text-align: left;
+  color: var(--text-dim);
+  font-weight: 500;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.model-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
 /* Notice banner */
 .notice {
   display: flex;

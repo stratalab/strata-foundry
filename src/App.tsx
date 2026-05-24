@@ -12,6 +12,9 @@ import { JsonView } from "./features/json/JsonView";
 import { VectorView } from "./features/vector/VectorView";
 import { GraphView } from "./features/graph/GraphView";
 import { DataView } from "./features/data/DataView";
+import { GenerationView } from "./features/generation/GenerationView";
+import { ModelsView } from "./features/models/ModelsView";
+import { InferenceView } from "./features/inference/InferenceView";
 import "./App.css";
 
 function TabBar() {
@@ -128,6 +131,12 @@ function Workspace() {
                 <GraphView key={active.id} />
               ) : section === "data" ? (
                 <DataView key={active.id} />
+              ) : section === "generate" ? (
+                <GenerationView key={active.id} />
+              ) : section === "models" ? (
+                <ModelsView key={active.id} />
+              ) : section === "inference" ? (
+                <InferenceView key={active.id} />
               ) : (
                 <div className="empty">
                   <p className="muted">This view isn’t built yet.</p>

@@ -5,6 +5,6 @@ edition = "2021"
 description = "Tauri-independent bridge to stratadb: handle registry + JSON command execution"
 
 [dependencies]
-stratadb = { path = "../../../strata-core", features = ["arrow"] }
+stratadb = { path = "../../../strata-core", features = ["arrow", "embed"] }
 serde_json = "1"
 dashmap = "6"

@@ -334,4 +334,19 @@ mod tests {
         reg.close(h);
         let _ = std::fs::remove_dir_all(&dir);
     }
+
+    /// Captures inference wire shapes that need no model download (requires `embed`).
+    /// Run: `cargo test inference_wire_shapes -- --nocapture`.
+    #[test]
+    fn inference_wire_shapes() {
+        let reg = Registry::new();
+        let h = reg.open_memory().unwrap();
+        let run = |c: &str| reg.execute(h, c).unwrap_or_else(|e| format!("ERR: {e}"));
+        eprintln!("ModelsList  -> {}", run(r#"{"ModelsList":null}"#));
+        eprintln!("ModelsLocal -> {}", run(r#"{"ModelsLocal":null}"#));
+        eprintln!("EmbedStatus -> {}", run(r#"{"EmbedStatus":null}"#));
+        eprintln!("ConfigGet   -> {}", run(r#"{"ConfigGet":null}"#));
+        eprintln!("ConfigSet   -> {}", run(r#"{"ConfigureSet":{"key":"embed_batch_size","value":"256"}}"#));
+        eprintln!("ConfigKey   -> {}", run(r#"{"ConfigureGetKey":{"key":"embed_batch_size"}}"#));
+    }
 }

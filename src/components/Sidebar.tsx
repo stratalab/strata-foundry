@@ -15,6 +15,9 @@ export const SECTIONS: Section[] = [
   { id: "vector", label: "Vectors", ready: true },
   { id: "graph", label: "Graph", ready: true },
   { id: "data", label: "Import / Export", ready: true },
+  { id: "generate", label: "Generate", ready: true },
+  { id: "models", label: "Models", ready: true },
+  { id: "inference", label: "Inference", ready: true },
   { id: "search", label: "Search", ready: false },
 ];
 
