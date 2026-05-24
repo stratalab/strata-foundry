@@ -5,6 +5,8 @@ import { BranchSwitcher } from "./components/BranchSwitcher";
 import { SpaceSwitcher } from "./components/SpaceSwitcher";
 import { KvView } from "./features/kv/KvView";
 import { BranchesView } from "./features/branches/BranchesView";
+import { EventsView } from "./features/events/EventsView";
+import { JsonView } from "./features/json/JsonView";
 import "./App.css";
 
 function TabBar() {
@@ -98,6 +100,10 @@ function Workspace() {
             <BranchesView key={active.id} />
           ) : section === "kv" ? (
             <KvView key={active.id} />
+          ) : section === "event" ? (
+            <EventsView key={active.id} />
+          ) : section === "json" ? (
+            <JsonView key={active.id} />
           ) : (
             <div className="empty">
               <p className="muted">This view isn’t built yet.</p>

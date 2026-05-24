@@ -194,4 +194,26 @@ mod tests {
         eprintln!("KvList default   -> {}", run(r#"{"KvList":{}}"#));
         eprintln!("SpaceExists  -> {}", run(r#"{"SpaceExists":{"space":"analytics"}}"#));
     }
+
+    /// Captures Event + JSON wire shapes. Run: `cargo test event_json_wire_shapes -- --nocapture`.
+    #[test]
+    fn event_json_wire_shapes() {
+        let reg = Registry::new();
+        let h = reg.open_memory().unwrap();
+        let run = |c: &str| reg.execute(h, c).unwrap_or_else(|e| format!("ERR: {e}"));
+
+        // Events
+        eprintln!("EvAppend -> {}", run(r#"{"EventAppend":{"event_type":"user.created","payload":{"Object":{"user":{"String":"alice"}}}}}"#));
+        run(r#"{"EventAppend":{"event_type":"user.login","payload":{"Object":{"user":{"String":"bob"}}}}}"#);
+        eprintln!("EvLen    -> {}", run(r#"{"EventLen":{}}"#));
+        eprintln!("EvTypes  -> {}", run(r#"{"EventListTypes":{}}"#));
+        eprintln!("EvList   -> {}", run(r#"{"EventList":{"limit":10}}"#));
+        eprintln!("EvGet0   -> {}", run(r#"{"EventGet":{"sequence":0}}"#));
+
+        // JSON
+        eprintln!("JsonSet  -> {}", run(r#"{"JsonSet":{"key":"doc:readme","path":"$","value":{"Object":{"title":{"String":"Hi"},"tags":{"Array":[{"String":"a"}]}}}}}"#));
+        eprintln!("JsonList -> {}", run(r#"{"JsonList":{"limit":100}}"#));
+        eprintln!("JsonGet  -> {}", run(r#"{"JsonGet":{"key":"doc:readme","path":"$"}}"#));
+        eprintln!("JsonCount-> {}", run(r#"{"JsonCount":{}}"#));
+    }
 }

@@ -10,8 +10,8 @@ export interface Section {
 export const SECTIONS: Section[] = [
   { id: "kv", label: "Key–Value", ready: true },
   { id: "branches", label: "Branches", ready: true },
-  { id: "event", label: "Events", ready: false },
-  { id: "json", label: "JSON", ready: false },
+  { id: "event", label: "Events", ready: true },
+  { id: "json", label: "JSON", ready: true },
   { id: "vector", label: "Vectors", ready: false },
   { id: "graph", label: "Graph", ready: false },
   { id: "search", label: "Search", ready: false },

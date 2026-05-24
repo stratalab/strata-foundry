@@ -3,11 +3,13 @@
 import { kvPut } from "./kv";
 import { branchFork } from "./branch";
 import { spaceCreate } from "./space";
+import { eventAppend } from "./event";
+import { jsonSet } from "./json";
 import type { Handle } from "./strata";
 
-/** Seed KV sample data on the default branch, across two spaces. */
+/** Seed KV, events, JSON, and a second space on the default branch. */
 export async function seedSample(handle: Handle): Promise<void> {
-  // default space
+  // KV — default space
   await kvPut(handle, "user:alice", {
     Object: {
       name: { String: "Alice Chen" },
@@ -35,21 +37,48 @@ export async function seedSample(handle: Handle): Promise<void> {
     Object: { USD_EUR: { Float: 0.92 }, USD_GBP: { Float: 0.79 } },
   });
 
-  // a second space to show grouping
+  // A second space to show grouping
   await spaceCreate(handle, "analytics");
   await kvPut(handle, "metric:dau", { Int: 4821 }, undefined, "analytics");
   await kvPut(handle, "metric:signups", { Int: 137 }, undefined, "analytics");
   await kvPut(handle, "metric:churn_rate", { Float: 0.021 }, undefined, "analytics");
+
+  // Events — append-only log
+  await eventAppend(handle, "user.created", { Object: { user: { String: "alice" } } });
+  await eventAppend(handle, "user.login", {
+    Object: { user: { String: "alice" }, method: { String: "api_key" } },
+  });
+  await eventAppend(handle, "tool.call", {
+    Object: { tool: { String: "web_search" }, duration_ms: { Int: 342 }, results: { Int: 15 } },
+  });
+  await eventAppend(handle, "user.login", {
+    Object: { user: { String: "bob" }, method: { String: "oauth" } },
+  });
+
+  // JSON documents
+  await jsonSet(handle, "doc:readme", {
+    Object: {
+      title: { String: "Getting Started" },
+      tags: { Array: [{ String: "docs" }, { String: "intro" }] },
+      published: { Bool: true },
+    },
+  });
+  await jsonSet(handle, "doc:agent-config", {
+    Object: {
+      model: { String: "claude-sonnet-4-6" },
+      temperature: { Float: 0.7 },
+      max_steps: { Int: 100 },
+    },
+  });
 }
 
 /**
- * Seed a disk database with KV data plus a diverged "feature" branch, so
+ * Seed a disk database with sample data plus a diverged "feature" branch, so
  * fork/diff/merge/cherry-pick have something meaningful to show immediately.
  */
 export async function seedDiskSample(handle: Handle): Promise<void> {
   await seedSample(handle);
   await branchFork(handle, "default", "feature");
-  // Diverge the feature branch: modify, add, and change a config value.
   await kvPut(
     handle,
     "user:alice",
