@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import { openMemory, open as openPath, close as closeHandle } from "../lib/strata";
 import type { Handle } from "../lib/strata";
+import { seedSample } from "../lib/sample";
 
 type Status = "disconnected" | "connecting" | "connected";
 
@@ -30,8 +31,9 @@ export function ConnectionProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const h = await openMemory();
+      await seedSample(h);
       setHandle(h);
-      setLabel("scratch (in-memory)");
+      setLabel("scratch (sample data)");
       setStatus("connected");
     } catch (e) {
       setError(String(e));

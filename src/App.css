@@ -305,3 +305,127 @@ code {
   font-family: "SF Mono", ui-monospace, Menlo, monospace;
   font-size: 12.5px;
 }
+
+/* Key namespace tree */
+.tree-scroll {
+  overflow: auto;
+  padding: 0 6px 10px;
+}
+.tree,
+.tree-children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.twisty {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  padding: 0;
+  width: 16px;
+  height: 18px;
+  font-size: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.twisty-spacer {
+  width: 16px;
+  flex-shrink: 0;
+}
+.tree-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 12.5px;
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+}
+.tree-label .seg {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tree-label:hover {
+  background: var(--bg-alt);
+}
+.tree-label.is-group .seg {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.tree-label.is-key .seg {
+  color: var(--text);
+}
+.tree-label.active {
+  background: var(--accent-soft);
+}
+.tree-label.active .seg {
+  color: var(--accent);
+}
+.count {
+  font-size: 10px;
+  color: var(--text-dim);
+  background: var(--bg-alt);
+  border-radius: 8px;
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+
+/* JSON value tree */
+.json-view {
+  margin-top: 12px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 12.5px;
+  overflow: auto;
+}
+.json-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1.7;
+}
+.json-row .twisty {
+  height: 16px;
+}
+.jkey {
+  color: #8250df;
+}
+.jbrace {
+  color: var(--text-dim);
+}
+.jcount {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.jv-null {
+  color: var(--text-dim);
+}
+.jv-bool {
+  color: #8250df;
+}
+.jv-num {
+  color: #0a7c5a;
+}
+.jv-str {
+  color: #b35309;
+}
+.jv-bytes {
+  color: var(--text-dim);
+}

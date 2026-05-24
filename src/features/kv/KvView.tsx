@@ -2,7 +2,10 @@ import { useEffect, useState, useCallback } from "react";
 import { useConnection } from "../../state/connection";
 import { kvList, kvGet } from "../../lib/kv";
 import type { VersionedValue } from "../../lib/kv";
-import { valueType, toPlain } from "../../lib/value";
+import { valueType } from "../../lib/value";
+import { buildKeyTree } from "../../lib/keytree";
+import { KeyTree } from "../../components/KeyTree";
+import { JsonTree } from "../../components/JsonTree";
 
 export function KvView() {
   const { handle } = useConnection();
@@ -49,6 +52,7 @@ export function KvView() {
   }, [handle, selected]);
 
   const shown = keys.filter((k) => k.toLowerCase().includes(filter.toLowerCase()));
+  const tree = buildKeyTree(shown);
 
   return (
     <div className="feature">
@@ -75,18 +79,9 @@ export function KvView() {
           {!loading && !error && shown.length === 0 && (
             <div className="muted pad">No keys</div>
           )}
-          <ul className="key-list">
-            {shown.map((k) => (
-              <li key={k}>
-                <button
-                  className={`key ${selected === k ? "active" : ""}`}
-                  onClick={() => setSelected(k)}
-                >
-                  {k}
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className="tree-scroll">
+            <KeyTree nodes={tree} selected={selected} onSelect={setSelected} />
+          </div>
         </div>
 
         <div className="detail-pane">
@@ -112,9 +107,9 @@ export function KvView() {
                 <span className="dk">updated</span>
                 <span>{new Date(detail.timestamp / 1000).toLocaleString()}</span>
               </div>
-              <pre className="value-box">
-                {JSON.stringify(toPlain(detail.value), null, 2)}
-              </pre>
+              <div className="json-view">
+                <JsonTree value={detail.value} />
+              </div>
             </>
           )}
         </div>
