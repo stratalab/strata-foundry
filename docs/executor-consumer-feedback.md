@@ -172,6 +172,27 @@ every consumer and is the natural complement to the snapshot fixes in #3.
   `"TxnBegun"`) while everything else is an object. Decodable, but a consumer's
   output parser has to special-case "string or object." Minor.
 
+### 7. Model management is incomplete (inference)
+
+From building the Generate / Models / download UI:
+
+- **No model delete or disk reclaim.** The only model-lifecycle command is
+  `GenerateUnload{model}`, which frees *memory* and only for generation models.
+  There is no `ModelsDelete{name}` (remove a downloaded model from disk) and no
+  task-agnostic `ModelsUnload{name}`. So the Models view can download but can't
+  let users reclaim the multi-GB models they've pulled — pulls are one-way. Add
+  **`ModelsDelete{name}`** and a general **`ModelsUnload{name}`**.
+- **No download progress.** `ModelsPull{name}` is a blocking call that returns
+  only on completion (`{name, path}`) with no byte-level progress, so the Models
+  view can show only an *indeterminate* bar for what may be a 4.6 GB download. A
+  progress signal — an event/callback the bridge can forward as a Tauri event, or
+  a pollable "bytes downloaded / total" — would enable a real percentage bar.
+- **Build note:** the bundled llama.cpp static lib is compiled **without `-fPIC`**,
+  so it can't be linked into a shared library (cdylib) on Linux — Foundry had to
+  drop the cdylib crate-type and link only the rlib. Building llama.cpp with
+  `CMAKE_POSITION_INDEPENDENT_CODE=ON` would let consumers link `embed` into a
+  cdylib (and is required for some packaging/mobile targets).
+
 ---
 
 ## Prioritization
@@ -184,6 +205,7 @@ every consumer and is the natural complement to the snapshot fixes in #3.
 | 4 | Capabilities in `Info` | UI adapts vs fails | Low | All |
 | 5 | Generic `execute_many` | Fewer round-trips | Low | All |
 | 6 | `as_of` shape / unit nits | Marginal | Low | All |
+| 7 | Model delete/unload + pull progress + `-fPIC` build | Reclaim disk; real % bar; link into cdylib | Low–Med | Foundry, any inference UI |
 
 **Fund #1 and #3 first.** #1 makes every future consumer cheap to build and keeps
 docs from drifting; #3 is the concrete data-completeness/N+1 work that directly
