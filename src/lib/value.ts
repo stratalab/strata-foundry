@@ -37,3 +37,18 @@ export function preview(v: StrataValue): string {
   const plain = toPlain(v);
   return typeof plain === "string" ? plain : JSON.stringify(plain);
 }
+
+/** Convert a plain JS value (e.g. from JSON.parse) into a tagged StrataValue. */
+export function fromPlain(v: unknown): StrataValue {
+  if (v === null || v === undefined) return "Null";
+  if (typeof v === "boolean") return { Bool: v };
+  if (typeof v === "number") return Number.isInteger(v) ? { Int: v } : { Float: v };
+  if (typeof v === "string") return { String: v };
+  if (Array.isArray(v)) return { Array: v.map(fromPlain) };
+  if (typeof v === "object") {
+    const out: Record<string, StrataValue> = {};
+    for (const [k, val] of Object.entries(v as Record<string, unknown>)) out[k] = fromPlain(val);
+    return { Object: out };
+  }
+  return "Null";
+}

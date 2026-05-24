@@ -54,3 +54,21 @@ export async function kvPut(
   const wr = asRecord(out.WriteResult);
   return typeof wr.version === "number" ? wr.version : 0;
 }
+
+export async function kvDelete(handle: Handle, key: string, branch?: string): Promise<void> {
+  const args: Record<string, unknown> = { key };
+  if (branch) args.branch = branch;
+  await execute(handle, { KvDelete: args });
+}
+
+/** Full version history for a key, newest version first. */
+export async function kvHistory(
+  handle: Handle,
+  key: string,
+  branch?: string,
+): Promise<VersionedValue[]> {
+  const args: Record<string, unknown> = { key };
+  if (branch) args.branch = branch;
+  const out = asRecord(await execute(handle, { KvGetv: args }));
+  return Array.isArray(out.VersionHistory) ? (out.VersionHistory as VersionedValue[]) : [];
+}

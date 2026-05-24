@@ -159,4 +159,21 @@ mod tests {
         reg.close(h);
         let _ = std::fs::remove_dir_all(&dir);
     }
+
+    /// Captures KvGetv (version history) + KvDelete wire shapes for time-travel.
+    /// Run: `cargo test kv_history_shapes -- --nocapture`.
+    #[test]
+    fn kv_history_shapes() {
+        let reg = Registry::new();
+        let h = reg.open_memory().unwrap();
+        let run = |c: &str| reg.execute(h, c).unwrap_or_else(|e| format!("ERR: {e}"));
+
+        run(r#"{"KvPut":{"key":"k","value":{"String":"v1"}}}"#);
+        run(r#"{"KvPut":{"key":"k","value":{"String":"v2"}}}"#);
+        run(r#"{"KvPut":{"key":"k","value":{"Int":3}}}"#);
+
+        eprintln!("KvGetv      -> {}", run(r#"{"KvGetv":{"key":"k"}}"#));
+        eprintln!("KvDelete    -> {}", run(r#"{"KvDelete":{"key":"k"}}"#));
+        eprintln!("GetAfterDel -> {}", run(r#"{"KvGet":{"key":"k"}}"#));
+    }
 }
