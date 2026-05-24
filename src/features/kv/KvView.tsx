@@ -10,6 +10,7 @@ import { JsonTree } from "../../components/JsonTree";
 export function KvView() {
   const { active } = useDatabases();
   const handle = active?.handle ?? null;
+  const branch = active?.currentBranch;
   const [keys, setKeys] = useState<string[]>([]);
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
@@ -22,13 +23,13 @@ export function KvView() {
     setLoading(true);
     setError(null);
     try {
-      setKeys(await kvList(handle));
+      setKeys(await kvList(handle, branch));
     } catch (e) {
       setError(String(e));
     } finally {
       setLoading(false);
     }
-  }, [handle]);
+  }, [handle, branch]);
 
   useEffect(() => {
     refresh();
@@ -40,7 +41,7 @@ export function KvView() {
       return;
     }
     let cancelled = false;
-    kvGet(handle, selected)
+    kvGet(handle, selected, branch)
       .then((v) => {
         if (!cancelled) setDetail(v);
       })
@@ -50,7 +51,7 @@ export function KvView() {
     return () => {
       cancelled = true;
     };
-  }, [handle, selected]);
+  }, [handle, selected, branch]);
 
   const shown = keys.filter((k) => k.toLowerCase().includes(filter.toLowerCase()));
   const tree = buildKeyTree(shown);
@@ -60,7 +61,7 @@ export function KvView() {
       <header className="feature-head">
         <h2>Key–Value</h2>
         <span className="muted">
-          {shown.length} / {keys.length} keys
+          {shown.length} / {keys.length} keys · branch <code>{branch}</code>
         </span>
         <button className="ghost" onClick={refresh}>
           Refresh

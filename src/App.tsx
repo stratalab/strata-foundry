@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { DatabasesProvider, useDatabases } from "./state/databases";
 import { Sidebar } from "./components/Sidebar";
+import { BranchSwitcher } from "./components/BranchSwitcher";
 import { KvView } from "./features/kv/KvView";
+import { BranchesView } from "./features/branches/BranchesView";
 import "./App.css";
 
 function TabBar() {
@@ -37,7 +39,8 @@ function TabBar() {
 }
 
 function Workspace() {
-  const { active, opening, error, openScratch, openAtPath, closeDb } = useDatabases();
+  const { active, opening, error, openScratch, openDiskDemo, openAtPath, closeDb } =
+    useDatabases();
   const [section, setSection] = useState("kv");
   const [path, setPath] = useState("");
 
@@ -49,6 +52,9 @@ function Workspace() {
         <div className="topbar">
           <button onClick={openScratch} disabled={opening}>
             Open scratch DB
+          </button>
+          <button className="ghost" onClick={openDiskDemo} disabled={opening}>
+            New disk DB
           </button>
           <form
             className="open-form"
@@ -69,6 +75,8 @@ function Workspace() {
               Open
             </button>
           </form>
+          <span className="grow" />
+          {active && <BranchSwitcher />}
           {active && (
             <button className="ghost" onClick={() => closeDb(active.id)}>
               Close
@@ -84,6 +92,8 @@ function Workspace() {
               <h1>Strata Foundry</h1>
               <p className="muted">Open a database to begin.</p>
             </div>
+          ) : section === "branches" ? (
+            <BranchesView key={active.id} />
           ) : section === "kv" ? (
             <KvView key={active.id} />
           ) : (

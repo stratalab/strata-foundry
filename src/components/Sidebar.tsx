@@ -9,12 +9,12 @@ export interface Section {
 /** Strata primitives. `ready` flags which feature views are built so far. */
 export const SECTIONS: Section[] = [
   { id: "kv", label: "Key–Value", ready: true },
+  { id: "branches", label: "Branches", ready: true },
   { id: "event", label: "Events", ready: false },
   { id: "json", label: "JSON", ready: false },
   { id: "vector", label: "Vectors", ready: false },
   { id: "graph", label: "Graph", ready: false },
   { id: "search", label: "Search", ready: false },
-  { id: "branches", label: "Branches", ready: false },
 ];
 
 export function Sidebar({

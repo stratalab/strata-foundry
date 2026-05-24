@@ -1,10 +1,10 @@
-// Multiple open databases, each with its own handle. Tabs switch the active one.
+// Multiple open databases, each with its own handle and current branch.
 
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import { openMemory, open as openPath, close as closeHandle } from "../lib/strata";
 import type { Handle } from "../lib/strata";
-import { seedSample } from "../lib/sample";
+import { seedSample, seedDiskSample } from "../lib/sample";
 
 export type DbKind = "scratch" | "disk";
 
@@ -15,6 +15,8 @@ export interface OpenDb {
   kind: DbKind;
   /** Branching requires a disk-backed database; scratch DBs can't fork. */
   supportsBranching: boolean;
+  /** The branch currently being viewed. */
+  currentBranch: string;
 }
 
 interface DatabasesCtx {
@@ -24,9 +26,11 @@ interface DatabasesCtx {
   opening: boolean;
   error: string | null;
   openScratch: () => Promise<void>;
+  openDiskDemo: () => Promise<void>;
   openAtPath: (path: string) => Promise<void>;
   closeDb: (id: string) => Promise<void>;
   setActive: (id: string) => void;
+  setBranch: (branch: string) => void;
 }
 
 const Ctx = createContext<DatabasesCtx | null>(null);
@@ -59,7 +63,22 @@ export function DatabasesProvider({ children }: { children: ReactNode }) {
     try {
       const handle = await openMemory();
       await seedSample(handle);
-      add({ id: nextId(), handle, label: "scratch", kind: "scratch", supportsBranching: false });
+      add({ id: nextId(), handle, label: "scratch", kind: "scratch", supportsBranching: false, currentBranch: "default" });
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setOpening(false);
+    }
+  }, [add]);
+
+  const openDiskDemo = useCallback(async () => {
+    setOpening(true);
+    setError(null);
+    try {
+      const path = `/tmp/strata-foundry-demo/db-${Date.now()}/.strata`;
+      const handle = await openPath(path);
+      await seedDiskSample(handle);
+      add({ id: nextId(), handle, label: basename(path), kind: "disk", supportsBranching: true, currentBranch: "default" });
     } catch (e) {
       setError(String(e));
     } finally {
@@ -72,7 +91,7 @@ export function DatabasesProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const handle = await openPath(path);
-      add({ id: nextId(), handle, label: basename(path), kind: "disk", supportsBranching: true });
+      add({ id: nextId(), handle, label: basename(path), kind: "disk", supportsBranching: true, currentBranch: "default" });
     } catch (e) {
       setError(String(e));
     } finally {
@@ -99,11 +118,30 @@ export function DatabasesProvider({ children }: { children: ReactNode }) {
 
   const setActive = useCallback((id: string) => setActiveId(id), []);
 
+  const setBranch = useCallback(
+    (branch: string) => {
+      setDbs((prev) => prev.map((d) => (d.id === activeId ? { ...d, currentBranch: branch } : d)));
+    },
+    [activeId],
+  );
+
   const active = dbs.find((d) => d.id === activeId) ?? null;
 
   return (
     <Ctx.Provider
-      value={{ dbs, activeId, active, opening, error, openScratch, openAtPath, closeDb, setActive }}
+      value={{
+        dbs,
+        activeId,
+        active,
+        opening,
+        error,
+        openScratch,
+        openDiskDemo,
+        openAtPath,
+        closeDb,
+        setActive,
+        setBranch,
+      }}
     >
       {children}
     </Ctx.Provider>
